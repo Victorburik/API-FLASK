@@ -1,0 +1,40 @@
+from flask import Flask, jsonify, request, json
+import json
+
+app = Flask(__name__)
+
+user = [
+    {'Nome': 'Victor','habilidades': ['JS','Python','CSS']},
+
+    {'Nome': 'Joao','habilidades': ['BOOTSTRAP', 'HTML']}
+]
+#Devolve um user pela ID, tambem altera e deleta o mesmo
+@app.route('/user/<int:id>/', methods=['GET', 'PUT', 'DELETE'])
+def users(id):
+    if request.method == 'GET':
+        try:
+            users = user[id]
+        except IndexError:
+            msg = 'ID DE USUARIO NÃO ENCONTRADO'.format(id)
+            users = {'STATUS':'ERRO', 'MENSAGEM': msg}
+        return jsonify(users)
+
+    elif request.method == 'PUT':
+        dados = json.loads(request.data)
+        user[id] = dados
+        return jsonify(dados)
+    elif request.method == 'DELETE':
+        user.pop(id)
+        return jsonify({'STATUS':'SUCESSO','MENSAGEM':'REGISTRO EXCLUIDO'})
+#INCLUI UM NOVO USER E CONSULTA TODOS JÁ CADASTRADOS
+@app.route('/user/', methods=['GET','POST'])
+def lista_user():
+    if request.method == 'POST':
+        dados = json.loads(request.data)
+        user.append(dados)
+        return jsonify({'STATUS':'SUCESSO','MENSAGEM':'REGISTRO INSERIDO'})
+    elif request.method == 'GET':
+        return jsonify(user)
+
+if __name__ == "__main__":
+    app.run(debug=True)
