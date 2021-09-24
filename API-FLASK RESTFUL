@@ -1,0 +1,45 @@
+from flask import Flask, request
+from flask_restful import Resource, Api
+import json
+app = Flask(__name__)
+Api = Api(app)
+
+user = [
+    {'Nome': 'Victor','habilidades': ['JS','Python','CSS']},
+
+    {'Nome': 'Joao','habilidades': ['BOOTSTRAP', 'HTML']}
+]
+
+class Usuario(Resource):
+
+    def get (self, id):
+        try:
+            users = user[id]
+        except IndexError:
+            msg = 'ID DE USUARIO NÃO ENCONTRADO'.format(id)
+            users = {'STATUS':'ERRO', 'MENSAGEM': msg}
+        return users
+
+    def put (self, id):
+
+        dados = json.loads(request.data)
+        user[id] = dados
+        return dados
+
+    def delete(self, id):
+        user.pop(id)
+        return {'STATUS':'SUCESSO','MENSAGEM':'REGISTRO EXCLUIDO'}
+
+class lista_user(Resource):
+    def get (self):
+        return user
+    def post(self):
+        dados = json.loads(request.data)
+        user.append(dados)
+        return {'STATUS':'SUCESSO','MENSAGEM':'REGISTRO INSERIDO'}
+
+Api.add_resource(Usuario, '/user/<int:id>/')
+Api.add_resource(lista_user, '/user/')
+
+if __name__ == "__main__":
+    app.run(debug=True)
